@@ -1,0 +1,340 @@
+{
+  "name": "Discord Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "contas",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "39b4bdc0-7570-4574-863b-92df0e9229ac",
+      "name": "Contas",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "gky4emVFuZ7xjL32",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9c7d724b-620e-430a-bba8-138702f3a914",
+              "leftValue": "={{ $json.pago }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "fb6605d0-335d-4f28-8111-271aa24560d1",
+              "leftValue": "={{ $json.vencimento }}",
+              "rightValue": "={{new Date().toISOString().slice(0, 10)}}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "afterOrEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "297eb436-41ce-4861-8238-767f8c8af3b9",
+      "name": "Não pagas e no vencimento"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d08892a9-4999-4471-b050-6ca441276273",
+              "leftValue": "={{ $json.pago }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "67e4003a-233a-4ad8-8041-2fcbae21f4cc",
+              "leftValue": "={{ $json.vencimento }}",
+              "rightValue": "={{new Date().toISOString().slice(0, 10)}}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "before"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        816,
+        96
+      ],
+      "id": "7364ad4f-a889-4862-9285-9bbdd485c5cf",
+      "name": "Atrasada"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=Conta não paga:\nTipo: {{ $json.tipo }}\nValor: R${{ $json.valor }}\nVencimento: {{ $json.vencimento }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        -96
+      ],
+      "id": "7adb5317-1370-422e-84dd-ef0bd8437a1a",
+      "name": "Discord",
+      "webhookId": "16ca3d07-2b35-4363-9d22-112e13a4db27",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "YF4mMYt0Su3aGG01",
+          "name": "Discord Webhook account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=Conta atrasada:\nTipo:{{ $json.tipo }}\nValor: R${{ $json.valor }}\nVencimento:  {{ $json.vencimento }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        80
+      ],
+      "id": "c6b05c64-26f5-49b7-b8a2-bd5869b27010",
+      "name": "Discord1",
+      "webhookId": "0c1c4e45-b62d-4d75-937d-380ac8489b64",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "YF4mMYt0Su3aGG01",
+          "name": "Discord Webhook account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "44535816-aff6-4633-b5d8-0cc595624bda",
+              "name": "tipo",
+              "value": "={{ $json.tipo }}",
+              "type": "string"
+            },
+            {
+              "id": "0b73e378-86da-4821-a525-73752ec923fc",
+              "name": "valor",
+              "value": "={{ $json.valor }}",
+              "type": "number"
+            },
+            {
+              "id": "085ded66-1b6f-4b13-9cb6-ed5f87ceab89",
+              "name": "vencimento",
+              "value": "={{ $json.vencimento }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        -96
+      ],
+      "id": "21b11043-b23b-4249-83ee-647672f7e83e",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0333e64f-ec25-4920-84fb-c02294036247",
+              "name": "tipo",
+              "value": "={{ $json.tipo }}",
+              "type": "string"
+            },
+            {
+              "id": "5cb6e3df-695c-45c7-97fc-f9d34978e1a3",
+              "name": "valor",
+              "value": "={{ $json.valor }}",
+              "type": "number"
+            },
+            {
+              "id": "85499c0a-8153-43ed-a2b4-a68405acc3a6",
+              "name": "vencimento",
+              "value": "={{ $json.vencimento }}",
+              "type": "string"
+            },
+            {
+              "id": "76be33d4-6ea5-45b5-89fb-97b21d88012e",
+              "name": "pago",
+              "value": "={{ $json.pago }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        96
+      ],
+      "id": "bee12a6a-2494-4414-801f-b4946eebd971",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "6819bb1c-ccf8-474f-8e7c-124f3da6a399",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Contas": {
+      "main": [
+        [
+          {
+            "node": "Não pagas e no vencimento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Não pagas e no vencimento": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atrasada": {
+      "main": [
+        [
+          {
+            "node": "Discord1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Atrasada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Contas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "0ac0f870-0e1f-455c-9978-c992f6ba1879",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "984002d57729cf77ec8f9567cf3f1042fae1b22d7d592fadc6b1577b1fe83260"
+  },
+  "id": "ux0cWeH0PQHVHPDm",
+  "tags": []
+}
